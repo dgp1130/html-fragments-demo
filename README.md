@@ -16,8 +16,11 @@ inserted into the document at the appropriate place. There are two key features:
 
 The interesting aspect of the approach here is that it demonstrates two use
 cases where client-side rendering would traditionally be required, either
-necessitating developer support of CSR and SSR of the same component (a tweet)
-or requiring the developer to commit to a fully CSR'd app.
+necessitating:
+
+1.  Developer support of CSR and SSR of the same component (a tweet).
+1.  Committing to a fully CSR'd app.
+1.  Refreshing the page to receive new SSR'd changes.
 
 Here, the same functionality is supported, yet tweets are **always** server-side
 rendered and include CSS and JS which get loaded by the browser when first
