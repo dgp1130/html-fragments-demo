@@ -25,12 +25,29 @@ function renderTweet(id: number, content: string): string {
     `.trim();
 }
 
+function renderEditableTweet(): string {
+    return `
+<my-editable-tweet>
+    <template shadowroot="open">
+        <input type="text" />
+        <button>Save</button>
+    </template>
+    <script src="/editable-tweet.js" type="module" async></script>
+</my-tweet>
+    `.trim();
+}
+
 /** Returns a generic tweet for the given ID. */
 app.get('/tweet', (req, res) => {
     const id = parseIntegerParam(req, 'id');
 
     const content = renderTweet(id, `Hello world from tweet #${id}.`);
     res.contentType('text/html').end(content);
+});
+
+/** Returns a generic editable tweet component. */
+app.get('/editable-tweet', (req, res) => {
+    res.contentType('text/html').end(renderEditableTweet());
 });
 
 /**

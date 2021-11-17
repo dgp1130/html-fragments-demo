@@ -11,7 +11,8 @@ type RealDomParse = (
  * Parse a network response as an HTML document fragment, then returns each
  * top-level element.
  */
-export async function parseDomFragment(res: Response): Promise<Element[]> {
+export async function parseDomFragment(res: Response):
+        Promise<HTMLTemplateElement> {
     // Parse a fully rendered document fragment from the network response.
     const html = await res.text();
     const contentType = res.headers.get('Content-Type');
@@ -28,11 +29,16 @@ export async function parseDomFragment(res: Response): Promise<Element[]> {
     const fragment = parse(html, simpleContentType as DOMParserSupportedType, {
         includeShadowRoots: true,
     });
-    return Array.from(fragment.body.children).map((fragEl) => {
+    const adoptedNodes = Array.from(fragment.body.children).map((fragEl) => {
         const el = document.adoptNode(fragEl);
         replaceScripts(el);
         return el;
     });
+
+    // Wrap everything in a template so it can be cloned as necessary.
+    const template = document.createElement('template');
+    template.content.append(...adoptedNodes);
+    return template;
 }
 
 /**

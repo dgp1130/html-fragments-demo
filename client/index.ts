@@ -17,13 +17,13 @@ import { parseDomFragment } from './dom.js';
     tweetList.appendChild(wrapInListItem(secondTweet));
 })();
 
-async function loadTweet(id: number): Promise<Element> {
+async function loadTweet(id: number): Promise<DocumentFragment> {
     const res = await fetch(`/tweet?id=${id}`);
-    const [ tweetEl ] = await parseDomFragment(res);
-    return tweetEl;
+    const tweetElTemplate = await parseDomFragment(res);
+    return tweetElTemplate.content.cloneNode(true /* deep */) as DocumentFragment;
 }
 
-function wrapInListItem(el: Element): HTMLLIElement {
+function wrapInListItem(el: DocumentFragment): HTMLLIElement {
     const listItem = document.createElement('li');
     listItem.appendChild(el);
     return listItem;

@@ -1,4 +1,23 @@
 import { parseDomFragment } from './dom.js';
+import { MyEditableTweet } from './editable-tweet.js';
+
+// Fetches the editable tweet template.
+const editableTweetTemplatePromise = (async (): Promise<HTMLTemplateElement> => {
+    const res = await fetch('/editable-tweet');
+    return await parseDomFragment(res);
+})();
+
+// Clones an editable tweet and returns it as a `DocumentFragment`.
+async function getEditableTweet(tweetId: number, content: string):
+        Promise<DocumentFragment> {
+    const template = await editableTweetTemplatePromise;
+    const instance =
+        template.content.cloneNode(true /* true */) as DocumentFragment;
+    const editableTweet = instance.firstElementChild as MyEditableTweet;
+    editableTweet.tweetId = tweetId;
+    editableTweet.content = content;
+    return instance;
+}
 
 /** Custom element representing a tweet, simply implements an edit button. */
 export class MyTweet extends HTMLElement {
@@ -24,13 +43,11 @@ export class MyTweet extends HTMLElement {
             .removeEventListener('click', this.onEdit);
     }
 
-    private onEdit = ((): void => {
+    private onEdit = (async (): Promise<void> => {
         // Replace this element with a `<my-editable-tweet />` element.
-        const editableTweet = document.createElement('my-editable-tweet');
-        editableTweet.tweetId = this.tweetId;
-        editableTweet.content = this.shadowRoot.querySelector('span')!.textContent!;
+        const content = this.shadowRoot.querySelector('span')!.textContent!;
+        const editableTweet = await getEditableTweet(this.tweetId, content);
         this.replaceWith(editableTweet);
-        editableTweet.focus();
     }).bind(this);
 }
 
@@ -39,63 +56,5 @@ customElements.define('my-tweet', MyTweet);
 declare global {
     interface HTMLElementTagNameMap {
         'my-tweet': MyTweet;
-    }
-}
-
-/**
- * An editable tweet which saves to the server and re-renders with the server's
- * response.
- */
-export class MyEditableTweet extends HTMLElement {
-    public shadowRoot!: ShadowRoot;
-    public tweetId!: number;
-    private input: HTMLInputElement;
-    private saveBtn: HTMLButtonElement;
-
-    public constructor() {
-        super();
-
-        const shadowRoot = this.attachShadow({ mode: 'open' });
-
-        this.input = document.createElement('input');
-        this.input.type = 'text';
-        shadowRoot.appendChild(this.input);
-
-        this.saveBtn = document.createElement('button');
-        this.saveBtn.textContent = 'Save';
-        shadowRoot.appendChild(this.saveBtn);
-    }
-
-    public set content(value: string) {
-        this.input.value = value;
-    }
-
-    protected connectedCallback(): void {
-        this.saveBtn.addEventListener('click', this.onSave);
-    }
-
-    protected disconnectedCallback(): void {
-        this.saveBtn.removeEventListener('click', this.onSave);
-    }
-
-    private onSave = (async () => {
-        // Save the edit to the server, and swap out this element with the new
-        // content returned by the server.
-        const url = `/tweet/edit?id=${this.tweetId}&content=${encodeURIComponent(this.input.value)}`;
-        const res = await fetch(url, { method: 'POST' });
-        const [ tweetEl ] = await parseDomFragment(res);
-        this.replaceWith(tweetEl);
-    }).bind(this);
-
-    public focus(): void {
-        this.input.focus();
-    }
-}
-
-customElements.define('my-editable-tweet', MyEditableTweet);
-
-declare global {
-    interface HTMLElementTagNameMap {
-        'my-editable-tweet': MyEditableTweet;
     }
 }
