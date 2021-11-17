@@ -28,8 +28,8 @@ export async function parseDomFragment(res: Response): Promise<Element[]> {
     const fragment = parse(html, simpleContentType as DOMParserSupportedType, {
         includeShadowRoots: true,
     });
-    return Array.from(fragment.body.children).map((tweetEl) => {
-        const el = document.adoptNode(tweetEl);
+    return Array.from(fragment.body.children).map((fragEl) => {
+        const el = document.adoptNode(fragEl);
         replaceScripts(el);
         return el;
     });
