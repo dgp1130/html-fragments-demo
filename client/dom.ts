@@ -4,7 +4,10 @@
 type Parse = typeof DOMParser.prototype.parseFromString;
 type RealDomParse = (
     this: DOMParser,
-    ...args: [...Parameters<Parse>, { includeShadowRoots: boolean }]
+    ...args: Parameters<Parse> | [
+        ...Parameters<Parse>,
+        { includeShadowRoots?: boolean },
+    ]
 ) => ReturnType<Parse>;
 
 /**
@@ -24,11 +27,12 @@ export async function parseDomFragment(res: Response):
 
     // Parse the HTML, extract the top-level nodes, adopt them into the current
     // document, and fix the `<script />` tags.
-    const parse = (DOMParser.prototype.parseFromString as RealDomParse)
-        .bind(new DOMParser());
-    const fragment = parse(html, simpleContentType as DOMParserSupportedType, {
-        includeShadowRoots: true,
-    });
+    const parse = DOMParser.prototype.parseFromString as RealDomParse;
+    const fragment = parse.apply(new DOMParser(), [
+        html,
+        simpleContentType as DOMParserSupportedType,
+        { includeShadowRoots: true },
+    ]);
     const adoptedNodes = Array.from(fragment.body.children).map((fragEl) => {
         const el = document.adoptNode(fragEl);
         replaceScripts(el);
