@@ -3,6 +3,9 @@
 This is a proof concept demo for using HTML document fragments as a transfer
 format between client and server.
 
+See [the associated blog post](https://dwac.dev/posts/html-fragments/) for more
+context about the motivation, goals, and design.
+
 This is a _very_ simple Twitter clone which displays tweets to the user in a
 list. Each tweet is requested dynamically, but rendered on the server and
 inserted into the document at the appropriate place. There are two key features:
