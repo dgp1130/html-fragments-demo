@@ -33,15 +33,12 @@ export async function parseDomFragment(res: Response):
         simpleContentType as DOMParserSupportedType,
         { includeShadowRoots: true },
     ]);
-    const adoptedNodes = Array.from(fragment.body.children).map((fragEl) => {
-        const el = document.adoptNode(fragEl);
-        replaceScripts(el);
-        return el;
-    });
+    const adopted = document.adoptNode(fragment.body);
+    replaceScripts(adopted);
 
     // Wrap everything in a template so it can be cloned as necessary.
     const template = document.createElement('template');
-    template.content.append(...adoptedNodes);
+    template.content.append(...adopted.children);
     return template;
 }
 
