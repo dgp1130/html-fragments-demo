@@ -6,9 +6,12 @@ format between client and server.
 See [the associated blog post](https://dwac.dev/posts/html-fragments/) for more
 context about the motivation, goals, and design.
 
+Also check out the
+[follow-up sequel post on _streaming_ HTML fragments](https://dwac.dev/posts/streaming-html-fragments/).
+
 This is a _very_ simple Twitter clone which displays tweets to the user in a
 list. Each tweet is requested dynamically, but rendered on the server and
-inserted into the document at the appropriate place. There are two key features:
+inserted into the document at the appropriate place. There are three key features:
 
 1.  "Load more" demos an endless scroll feature. Each time it is clicked, the
     client requests a random tweet and appends it to the list.
@@ -16,6 +19,9 @@ inserted into the document at the appropriate place. There are two key features:
     and sends it to the server. The server would update any associated
     databases, and more importantly here, return the newly rendered tweet to the
     client to be updated in place.
+1.  "Stream 5 tweets" demos a streaming parse where the server returns 5 tweets
+    in a single HTTP response. The tweets are appended to the DOM as they are
+    received, without waiting for the entire response.
 
 The interesting aspect of the approach here is that it demonstrates two use
 cases where client-side rendering would traditionally be required, either

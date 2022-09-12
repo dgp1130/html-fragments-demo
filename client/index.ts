@@ -1,13 +1,21 @@
-import { parseDomFragment } from './dom.js';
+import { parseDomFragment, streamDomFragment } from './dom.js';
 
 (async () => {
     const tweetList = document.getElementById('tweets')!;
 
     // Bind "Load more" button to load an additional, random tweet.
-    const loadMore = document.getElementById('load-more')!;
-    loadMore.addEventListener('click', async () => {
-        const tweetEl = await loadTweet(Math.floor(Math.random() * 1000));
+    const loadMoreBtn = document.getElementById('load-more')!;
+    loadMoreBtn.addEventListener('click', async () => {
+        const tweetEl = await loadTweet(Math.floor(Math.random() * 10_000));
         tweetList.appendChild(wrapInListItem(tweetEl));
+    });
+
+    // Bind "Stream 5 tweets" button to stream random tweets.
+    const streamTweetsBtn = document.getElementById('stream')!;
+    streamTweetsBtn.addEventListener('click', async () => {
+        for await (const tweet of streamTweets(5)) {
+            tweetList.appendChild(wrapInListItem(tweet));
+        }
     });
 
     // Load two tweets to start with.
@@ -19,12 +27,21 @@ import { parseDomFragment } from './dom.js';
 
 async function loadTweet(id: number): Promise<DocumentFragment> {
     const res = await fetch(`/tweet?id=${id}`);
+    if (res.status >= 400) throw new Error(`HTTP request failed with status code: ${res.status}.`);
     const tweetElTemplate = await parseDomFragment(res);
-    return tweetElTemplate.content.cloneNode(true /* deep */) as DocumentFragment;
+    return tweetElTemplate.cloneContent();
 }
 
-function wrapInListItem(el: DocumentFragment): HTMLLIElement {
+async function* streamTweets(limit: number): AsyncGenerator<Node, void, void> {
+    const res = await fetch(`/tweet/stream?limit=${limit}`);
+    if (res.status >= 400) throw new Error(`HTTP request failed with status code: ${res.status}.`);
+    for await (const node of streamDomFragment(res)) {
+        yield node.cloneContent();
+    }
+}
+
+function wrapInListItem(node: Node): HTMLLIElement {
     const listItem = document.createElement('li');
-    listItem.appendChild(el);
+    listItem.appendChild(node);
     return listItem;
 }

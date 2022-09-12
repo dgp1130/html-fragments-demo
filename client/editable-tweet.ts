@@ -5,16 +5,11 @@ import { parseDomFragment } from './dom.js';
  * response.
  */
  export class MyEditableTweet extends HTMLElement {
-    public shadowRoot!: ShadowRoot;
     public tweetId!: number;
     public content!: string;
 
-    public constructor() {
-        super();
-        this.input.value = this.content;
-    }
-
     protected connectedCallback(): void {
+        this.input.value = this.content;
         this.saveBtn.addEventListener('click', this.onSave);
     }
 
@@ -27,16 +22,17 @@ import { parseDomFragment } from './dom.js';
         // content returned by the server.
         const url = `/tweet/edit?id=${this.tweetId}&content=${encodeURIComponent(this.input.value)}`;
         const res = await fetch(url, { method: 'POST' });
+        if (res.status >= 400) throw new Error(`HTTP request failed with status code: ${res.status}.`);
         const tweetElTemplate = await parseDomFragment(res);
-        this.replaceWith(tweetElTemplate.content.cloneNode(true /* deep */));
+        this.replaceWith(tweetElTemplate.cloneContent());
     }).bind(this);
 
     private get input(): HTMLInputElement {
-        return this.shadowRoot.querySelector('input')!;
+        return this.shadowRoot!.querySelector('input')!;
     }
 
     private get saveBtn(): HTMLButtonElement {
-        return this.shadowRoot.querySelector('button')!;
+        return this.shadowRoot!.querySelector('button')!;
     }
 }
 

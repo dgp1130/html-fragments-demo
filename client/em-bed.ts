@@ -15,8 +15,7 @@ class Embed extends HTMLElement {
         (async () => {
             const res = await fetch(src);
             const template = await parseDomFragment(res);
-            const content = template.content.cloneNode(true /* deep */);
-            this.appendChild(content);
+            this.appendChild(template.cloneContent());
         })();
     }
 }
