@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "start": "npm run -s build && node build/server.js",
-    "clean": "rm -rf build/ && mkdir -p build/client/",
-    "copy-assets": "cp client/**.html client/**.css build/client/",
+    "build": "npm run -s clean && mkdir -p build/client/routing/ && npm run -s copy-assets && npm run -s build-ts",
+    "copy-assets": "cp client/*.html client/*.css build/client/ && cp client/routing/*.html build/client/routing/",
     "build-ts": "tsc",
-    "build": "npm run -s clean && npm run -s copy-assets && npm run -s build-ts"
+    "clean": "rm -rf build/"
   },
   "keywords": [],
   "author": "Douglas Parker",

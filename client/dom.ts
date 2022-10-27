@@ -1,3 +1,5 @@
+export * from './router.js';
+
 /**
  * Parse a network response as an HTML document fragment, then returns each
  * top-level element.

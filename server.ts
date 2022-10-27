@@ -1,7 +1,10 @@
 import { env } from 'process';
 import express, { Request } from 'express';
+import { routingApp } from './routing.js';
 
 const app = express();
+
+routingApp(app);
 
 app.use(express.static('build/client/', {
     cacheControl: true,
