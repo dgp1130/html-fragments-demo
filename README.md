@@ -7,7 +7,10 @@ See [the associated blog post](https://dwac.dev/posts/html-fragments/) for more
 context about the motivation, goals, and design.
 
 Also check out the
-[follow-up sequel post on _streaming_ HTML fragments](https://dwac.dev/posts/streaming-html-fragments/).
+[follow-up sequel post on _streaming_ HTML fragments](https://dwac.dev/posts/streaming-html-fragments/)
+or the
+[three-quel post on _routing_ with HTML fragments](https://blog.dwac.dev/posts/html-fragments-routing/)
+and its associated [demo](https://github.com/dgp1130/html-fragments-routing-demo/).
 
 This is a _very_ simple Twitter clone which displays tweets to the user in a
 list. Each tweet is requested dynamically, but rendered on the server and
