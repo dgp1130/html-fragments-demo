@@ -89,6 +89,14 @@ function parseAndObserveTopLevelNodeAdditions(stream: AsyncGenerator<string, voi
     return (emit) => {
         // Create an HTML document to stream the HTTP response into.
         const doc = document.implementation.createHTMLDocument();
+
+        // Must explicitly open the document (which resets it) and then write enough HTML to
+        // create a new `doc.body`. If we don't do this, then `doc.write()` will implicitly
+        // call `doc.open()` and reset the `doc.body` tag, meaning we'll be observing a
+        // `<body />` element no longer attached to the document and not being used.
+        // See: https://bugzilla.mozilla.org/show_bug.cgi?id=1811782#c3
+        doc.open();
+        doc.write('<!DOCTYPE html><html><head></head><body>');
     
         // Observe the document 
         const obs = new MutationObserver((records) => {
@@ -110,6 +118,7 @@ function parseAndObserveTopLevelNodeAdditions(stream: AsyncGenerator<string, voi
                 }
             } finally {
                 // Input fully processed, stop observing and complete the stream.
+                doc.close();
                 obs.disconnect();
                 emit({ value: undefined, done: true });
             }
